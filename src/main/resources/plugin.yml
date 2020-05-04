@@ -1,0 +1,31 @@
+main: com.scolastico.antimonstercrystal.AntiMonsterCrystal
+name: AntiMonsterCrystal
+version: 1.0.0
+description: Spawn crystals that defense your base from monsters.
+api-version: 1.15
+load: POSTWORLD
+author: scolastico
+website: www.scolasti.co
+prefix: AntiMonsterCrystal
+commands:
+  antimonstercrystal:
+    description: Main command from AntiMonsterCrystal.
+permissions:
+  antimonstercrystal.give:
+    description: Allows to give you a AntiMonsterCrystal.
+  antimonstercrystal.craft:
+    description: Allows to craft a AntiMonsterCrystal.
+  antimonstercrystal.place:
+    description: Allows to place a AntiMonsterCrystal.
+  antimonstercrystal.delete.range:
+    description: Allows to delete an own crystal in a range of 5 blocks.
+  antimonstercrystal.delete.all:
+    description: Allows to delete all own crystals.
+  antimonstercrystal.bypass:
+    description: Allows to bypass the max per user ammount.
+  antimonstercrystal.admin.reload:
+    description: Allows to reload the plugin.
+  antimonstercrystal.admin.delete:
+    description: Allows to delete all crystals from a user.
+  antimonstercrystal.admin.reset:
+    description: Allows to delete all crystals.
