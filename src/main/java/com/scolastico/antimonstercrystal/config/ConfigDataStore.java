@@ -43,7 +43,6 @@ public class ConfigDataStore {
             put("max", "&2You spawned the max amount of anti monster crystals!");
             put("not_a_player", "&2Sorry, but you are not a player!");
             put("help_give", "&2/AntiMonsterCrystal give <name> <amount> - Give an player a AntiMonsterCrystal.");
-            put("help_give_other", "&2/AntiMonsterCrystal give <player> - Give an AntiMonsterCrystal to another player.");
             put("help_delete", "&2/AntiMonsterCrystal delete - Remove the next AntiMonsterCrystal from you in a 5 block radius.");
             put("help_delete_all", "&2/AntiMonsterCrystal delete-all - Remove all AntiMonsterCrystals from you.");
             put("help_reset", "&2/AntiMonsterCrystal reset - Reload the config.");

@@ -153,7 +153,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                     if (commandSender.hasPermission("antimonstercrystal.give")) {
                         for (Player player:Bukkit.getServer().getOnlinePlayers()) {
                             if (player.getName().equalsIgnoreCase(args[1])) {
-                                api.givePlayerCrystal((Player) commandSender, 1);
+                                api.givePlayerCrystal(player, 1);
                                 Language.getInstance().sendConfigMessage("done", commandSender);
                                 return true;
                             }
@@ -172,7 +172,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                         if (amount > 0 && amount < 65) {
                             for (Player player:Bukkit.getServer().getOnlinePlayers()) {
                                 if (player.getName().equalsIgnoreCase(args[1])) {
-                                    api.givePlayerCrystal((Player) commandSender, amount);
+                                    api.givePlayerCrystal(player, amount);
                                     Language.getInstance().sendConfigMessage("done", commandSender);
                                     return true;
                                 }

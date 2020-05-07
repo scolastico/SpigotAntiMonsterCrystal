@@ -56,39 +56,43 @@ public class OnTick {
 
                                 store.add(data);
 
+                                boolean _break = false;
+
                                 for (Entity enemy:crystal.getNearbyEntities(radius, radius, radius)) {
-                                    if (checkForEntityType(enemy.getType().toString())) {
-                                        if (crystal.getLocation().distance(enemy.getLocation()) <= radius) {
+                                    if (!_break) {
+                                        if (checkForEntityType(enemy.getType().toString())) {
+                                            if (crystal.getLocation().distance(enemy.getLocation()) <= radius) {
 
-                                            World worldCrystal = crystal.getWorld();
-                                            if (soundAtBeam != null) {
-                                                worldCrystal.playSound(crystal.getLocation(), soundAtBeam, 1, 1);
+                                                World worldCrystal = crystal.getWorld();
+                                                if (soundAtBeam != null) {
+                                                    worldCrystal.playSound(crystal.getLocation(), soundAtBeam, 1, 1);
+                                                }
+
+                                                final Sound finalSoundAtKill = soundAtKill;
+                                                final Particle finalParticleAtKill = particleAtKill;
+
+                                                if (animations.isShowBeam()) crystal.setBeamTarget(enemy.getLocation());
+
+                                                Bukkit.getScheduler().runTaskLater(AntiMonsterCrystal.getPlugin(), new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        World worldEnemy = enemy.getWorld();
+                                                        if (finalSoundAtKill != null) worldEnemy.playSound(enemy.getLocation(), finalSoundAtKill, 1, 1);
+                                                        if (finalParticleAtKill != null) worldEnemy.spawnParticle(finalParticleAtKill, enemy.getLocation(), animations.getParticleAmount());
+
+                                                        enemy.remove();
+                                                    }
+                                                }, animations.getUntilKill());
+
+                                                Bukkit.getScheduler().runTaskLater(AntiMonsterCrystal.getPlugin(), new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        crystal.setBeamTarget(null);
+                                                    }
+                                                }, animations.getUntilBeamReset());
+
+                                                _break = true;
                                             }
-
-                                            final Sound finalSoundAtKill = soundAtKill;
-                                            final Particle finalParticleAtKill = particleAtKill;
-
-                                            if (animations.isShowBeam()) crystal.setBeamTarget(enemy.getLocation());
-
-                                            Bukkit.getScheduler().runTaskLater(AntiMonsterCrystal.getPlugin(), new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    World worldEnemy = enemy.getWorld();
-                                                    if (finalSoundAtKill != null) worldEnemy.playSound(enemy.getLocation(), finalSoundAtKill, 1, 1);
-                                                    if (finalParticleAtKill != null) worldEnemy.spawnParticle(finalParticleAtKill, enemy.getLocation(), animations.getParticleAmount());
-
-                                                    enemy.remove();
-                                                }
-                                            }, animations.getUntilKill());
-
-                                            Bukkit.getScheduler().runTaskLater(AntiMonsterCrystal.getPlugin(), new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    crystal.setBeamTarget(null);
-                                                }
-                                            }, animations.getUntilBeamReset());
-
-                                            break;
                                         }
                                     }
                                 }
