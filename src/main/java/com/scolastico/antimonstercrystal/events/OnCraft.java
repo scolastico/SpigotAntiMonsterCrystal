@@ -1,5 +1,6 @@
 package com.scolastico.antimonstercrystal.events;
 
+import com.scolastico.antimonstercrystal.AntiMonsterCrystal;
 import com.scolastico.antimonstercrystal.api.AntiMonsterCrystalAPI;
 import com.scolastico.antimonstercrystal.internal.ErrorHandler;
 import com.scolastico.antimonstercrystal.internal.Language;
@@ -30,6 +31,13 @@ public class OnCraft implements Listener {
                         if (!event.getWhoClicked().hasPermission("antimonstercrystal.craft")) {
                             Language.getInstance().sendConfigMessage("craft_permission", event.getWhoClicked());
                             event.setCancelled(true);
+                        } else {
+                            if ((!AntiMonsterCrystal.getConfigDataStore().isAllowCraftingInNotWhitelistedWorld()) && (AntiMonsterCrystal.getConfigDataStore().isEnableWorldWhiteList())) {
+                                if (AntiMonsterCrystal.getConfigDataStore().getWorldWhitelist().contains(event.getWhoClicked().getWorld().getName())) {
+                                    Language.getInstance().sendConfigMessage("craft_permission", event.getWhoClicked());
+                                    event.setCancelled(true);
+                                }
+                            }
                         }
                     }
                 }

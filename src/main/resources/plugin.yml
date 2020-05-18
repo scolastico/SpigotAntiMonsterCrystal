@@ -1,12 +1,13 @@
 main: com.scolastico.antimonstercrystal.AntiMonsterCrystal
 name: AntiMonsterCrystal
-version: 1.0.1
-description: Spawn crystals that defense your base from monsters.
+version: 1.1.0
+description: Spawn crystals that defend your base from monsters.
 api-version: 1.15
 load: POSTWORLD
 author: scolastico
 website: www.scolasti.co
 prefix: AntiMonsterCrystal
+softdepend: [sTools, LightAPI]
 commands:
   antimonstercrystal:
     description: Main command from AntiMonsterCrystal.

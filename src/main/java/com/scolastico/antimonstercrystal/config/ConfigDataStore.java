@@ -5,17 +5,35 @@ import java.util.HashMap;
 
 public class ConfigDataStore {
 
+    private String version = "0";
+    private String crystalName = "&b&cAntiMonsterCrystal";
     private Long checkAllTicks = 15L;
     private int maxPerAccount = 5;
     private int radius = 30;
     private Crafting craftingRecipe = new Crafting();
     private boolean gamemodeControl = true;
-    private boolean onlyOverWorld = true;
+    private boolean enableWorldWhiteList = true;
+    private boolean allowCraftingInNotWhitelistedWorld = false;
     private boolean damagePlayer = true;
     private boolean damageEntity = false;
     private boolean damageBlock = false;
     private boolean giveItemBackOnRemoveWithCommand = false;
+    private boolean showCrystalName = true;
+    private boolean dropItemsOnKill = false;
     private Animations animations = new Animations();
+
+    private ArrayList<String> lore = new ArrayList<String>() {
+        {
+            add("Place to auto defend your base!");
+            add("Does no block damage if it explodes!");
+        }
+    };
+
+    private ArrayList<String> worldWhitelist = new ArrayList<String>() {
+        {
+            add("world");
+        }
+    };
 
     private ArrayList<String> monsters = new ArrayList<String>() {
         {
@@ -48,12 +66,78 @@ public class ConfigDataStore {
             put("help_reset", "&2/AntiMonsterCrystal reset - Reload the config.");
             put("help_reload", "&2/AntiMonsterCrystal reload - Reload the config.");
             put("help_help", "&2/AntiMonsterCrystal help - Shows this help site.");
-            put("only_over_world", "&cSorry, you can only place this in the over world!");
+            put("only_over_world", "&cSorry, you cant place this in this world!");
             put("confirm", "&cAre you sure? This cant be reverted! Enter '%command%' in the next 15 seconds again to confirm!");
             put("int_error", "&cSorry, only a value between 1 and 64 is allowed!");
             put("not_online", "&cPlayer seems to be not online.");
+            put("already_reloading", "&cAlready reloading please wait a few seconds!");
+            put("reloading", "&aReloading...");
         }
     };
+
+    public boolean isDropItemsOnKill() {
+        return dropItemsOnKill;
+    }
+
+    public void setDropItemsOnKill(boolean dropItemsOnKill) {
+        this.dropItemsOnKill = dropItemsOnKill;
+    }
+
+    public ArrayList<String> getLore() {
+        return lore;
+    }
+
+    public void setLore(ArrayList<String> lore) {
+        this.lore = lore;
+    }
+
+    public String getCrystalName() {
+        return crystalName;
+    }
+
+    public void setCrystalName(String crystalName) {
+        this.crystalName = crystalName;
+    }
+
+    public boolean isShowCrystalName() {
+        return showCrystalName;
+    }
+
+    public void setShowCrystalName(boolean showCrystalName) {
+        this.showCrystalName = showCrystalName;
+    }
+
+    public boolean isAllowCraftingInNotWhitelistedWorld() {
+        return allowCraftingInNotWhitelistedWorld;
+    }
+
+    public void setAllowCraftingInNotWhitelistedWorld(boolean allowCraftingInNotWhitelistedWorld) {
+        this.allowCraftingInNotWhitelistedWorld = allowCraftingInNotWhitelistedWorld;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public boolean isEnableWorldWhiteList() {
+        return enableWorldWhiteList;
+    }
+
+    public void setEnableWorldWhiteList(boolean enableWorldWhiteList) {
+        this.enableWorldWhiteList = enableWorldWhiteList;
+    }
+
+    public ArrayList<String> getWorldWhitelist() {
+        return worldWhitelist;
+    }
+
+    public void setWorldWhitelist(ArrayList<String> worldWhitelist) {
+        this.worldWhitelist = worldWhitelist;
+    }
 
     public boolean isDamageEntity() {
         return damageEntity;
@@ -93,14 +177,6 @@ public class ConfigDataStore {
 
     public void setDamagePlayer(boolean damagePlayer) {
         this.damagePlayer = damagePlayer;
-    }
-
-    public boolean isOnlyOverWorld() {
-        return onlyOverWorld;
-    }
-
-    public void setOnlyOverWorld(boolean onlyOverWorld) {
-        this.onlyOverWorld = onlyOverWorld;
     }
 
     public boolean isGamemodeControl() {

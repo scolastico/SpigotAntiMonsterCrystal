@@ -5,13 +5,11 @@ import com.scolastico.antimonstercrystal.config.ConfigDataStore;
 import com.scolastico.antimonstercrystal.config.ConfigHandler;
 import com.scolastico.antimonstercrystal.config.CrystalDataStore;
 import com.scolastico.antimonstercrystal.internal.ErrorHandler;
-import org.bukkit.Bukkit;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -45,23 +43,19 @@ public class OnTick {
 
         try {
             for (CrystalDataStore.CrystalData data:dataStore.getCrystalData()) {
+                if (data.getLocation().getLocation().getChunk().isLoaded()) {
+                    Entity entity = Bukkit.getEntity(UUID.fromString(data.getCrystalUUID()));
 
-                Entity entity = Bukkit.getEntity(UUID.fromString(data.getCrystalUUID()));
-
-                if (entity != null) {
-                    if (entity.getType() == EntityType.ENDER_CRYSTAL) {
-                        EnderCrystal crystal = (EnderCrystal) entity;
-                        if (crystal.getCustomName() != null) {
-                            if (crystal.getCustomName().equals("§4AntiMonsterCrystal")) {
-
-                                store.add(data);
-
-                                boolean _break = false;
-
-                                for (Entity enemy:crystal.getNearbyEntities(radius, radius, radius)) {
-                                    if (!_break) {
-                                        if (checkForEntityType(enemy.getType().toString())) {
-                                            if (crystal.getLocation().distance(enemy.getLocation()) <= radius) {
+                    if (entity != null) {
+                        if (entity.getType() == EntityType.ENDER_CRYSTAL) {
+                            EnderCrystal crystal = (EnderCrystal) entity;
+                            store.add(data);
+                            boolean _break = false;
+                            for (Entity enemy:crystal.getNearbyEntities(radius, radius, radius)) {
+                                if (!_break) {
+                                    if (checkForEntityType(enemy.getType().toString())) {
+                                        if (crystal.getLocation().distance(enemy.getLocation()) <= radius) {
+                                            if (!enemy.isDead()) {
 
                                                 World worldCrystal = crystal.getWorld();
                                                 if (soundAtBeam != null) {
@@ -80,7 +74,15 @@ public class OnTick {
                                                         if (finalSoundAtKill != null) worldEnemy.playSound(enemy.getLocation(), finalSoundAtKill, 1, 1);
                                                         if (finalParticleAtKill != null) worldEnemy.spawnParticle(finalParticleAtKill, enemy.getLocation(), animations.getParticleAmount());
 
-                                                        enemy.remove();
+                                                        if (AntiMonsterCrystal.getConfigDataStore().isDropItemsOnKill()) {
+                                                            try {
+                                                                ((LivingEntity) enemy).setHealth(0);
+                                                            } catch (Exception ignored) {
+                                                                enemy.remove();
+                                                            }
+                                                        } else {
+                                                            enemy.remove();
+                                                        }
                                                     }
                                                 }, animations.getUntilKill());
 
@@ -96,18 +98,12 @@ public class OnTick {
                                         }
                                     }
                                 }
-
-                            } else {
-                                entity.remove();
                             }
                         } else {
                             entity.remove();
                         }
-                    } else {
-                        entity.remove();
                     }
                 }
-
             }
 
             try {

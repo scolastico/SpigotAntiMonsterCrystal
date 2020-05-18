@@ -4,14 +4,9 @@ import com.scolastico.antimonstercrystal.AntiMonsterCrystal;
 import com.scolastico.antimonstercrystal.config.ConfigHandler;
 import com.scolastico.antimonstercrystal.config.CrystalDataStore;
 import com.scolastico.antimonstercrystal.internal.ErrorHandler;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.entity.EnderCrystal;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import com.scolastico.antimonstercrystal.internal.Language;
+import org.bukkit.*;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -20,6 +15,20 @@ import java.util.List;
 import java.util.UUID;
 
 public class AntiMonsterCrystalAPI {
+
+    public boolean isCrystal(UUID uuid) {
+        return isCrystal(uuid.toString());
+    }
+
+    public boolean isCrystal(String uuid) {
+        CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();
+        for (CrystalDataStore.CrystalData data:dataStore.getCrystalData()) {
+            if (data.getCrystalUUID().equals(uuid)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public ArrayList<CrystalDataStore.CrystalData> getDataFromPlacedUUID(String uuid) {
         CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();
@@ -55,8 +64,62 @@ public class AntiMonsterCrystalAPI {
     public void deleteAllCrystals() {
         CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();
         for (CrystalDataStore.CrystalData data:dataStore.getCrystalData()) {
-            Entity entity = Bukkit.getEntity(UUID.fromString(data.getCrystalUUID()));
-            if(entity != null) entity.remove();
+            Chunk chunk = data.getLocation().getLocation().getChunk();
+            chunk.load();
+            if (chunk.isLoaded()) {
+                Entity entity = Bukkit.getEntity(UUID.fromString(data.getCrystalUUID()));
+                if(entity != null) entity.remove();
+            }
+            chunk.unload();
+        }
+    }
+
+    public void deleteAllCrystalsFromLocations() {
+        CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();
+        for (CrystalDataStore.CrystalData data:dataStore.getCrystalData()) {
+            if (data.getLocation().getWorld() != null) {
+                Chunk chunk = data.getLocation().getLocation().getChunk();
+                chunk.load();
+                if (chunk.isLoaded()) {
+                    for (Entity entity:data.getLocation().getWorld().getNearbyEntities(data.getLocation().getLocation(), 1, 1, 1)) {
+                        if (entity.getType() == EntityType.ENDER_CRYSTAL) entity.remove();
+                    }
+                }
+                chunk.unload();
+            }
+        }
+    }
+
+    public void spawnCrystalsFromConfig() {
+        CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();
+        CrystalDataStore newDataStore = new CrystalDataStore();
+        ArrayList<String> notFoundWorlds = new ArrayList<>();
+        for (CrystalDataStore.CrystalData data:dataStore.getCrystalData()) {
+            if (data.getLocation().getWorld() != null) {
+                Chunk chunk = data.getLocation().getLocation().getChunk();
+                chunk.load();
+                if (chunk.isLoaded()) {
+                    UUID uuid = spawnCrystal(data.getLocation().getLocation(), data.getLocation().getWorld());
+                    CrystalDataStore.CrystalData newData = new CrystalDataStore.CrystalData(data.getPlacedByUUID(), uuid.toString(), data.getLocation());
+                    newDataStore.addCrystalData(newData);
+                } else {
+                    Language.getInstance().sendColorMessage(Color.RED + "Cant load chunk ", Bukkit.getConsoleSender());
+                }
+                chunk.unload();
+            } else {
+                if (!notFoundWorlds.contains(data.getLocation().getWorldName())) {
+                    notFoundWorlds.add(data.getLocation().getWorldName());
+                    Language.getInstance().sendColorMessage(Color.RED + "Cant find world '" + data.getLocation().getWorldName() + "'. Deleting crystals from data.", Bukkit.getConsoleSender());
+                }
+            }
+        }
+        AntiMonsterCrystal.setCrystalDataStore(newDataStore);
+        ConfigHandler handler = AntiMonsterCrystal.getCrystalDataStoreConfigHandler();
+        handler.setConfigObject(newDataStore);
+        try {
+            handler.saveConfigObject();
+        } catch (Exception e) {
+            ErrorHandler.getInstance().handleFatal(e);
         }
     }
 
@@ -68,12 +131,8 @@ public class AntiMonsterCrystalAPI {
     public void spawnCrystal(String uuid, Location location, World world) {
         try {
             CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();
-            Entity entity = world.spawnEntity(location, EntityType.ENDER_CRYSTAL);
-            entity.setCustomNameVisible(true);
-            entity.setCustomName("§4AntiMonsterCrystal");
-            EnderCrystal enderCrystal = (EnderCrystal) entity;
-            enderCrystal.setShowingBottom(false);
-            CrystalDataStore.CrystalData entry = new CrystalDataStore.CrystalData(uuid, entity.getUniqueId().toString());
+            com.scolastico.antimonstercrystal.internal.Location loc = new com.scolastico.antimonstercrystal.internal.Location(location.getX(), location.getY(), location.getZ(), world.getName());
+            CrystalDataStore.CrystalData entry = new CrystalDataStore.CrystalData(uuid, spawnCrystal(location, world).toString(), loc);
             dataStore.addCrystalData(entry);
             ConfigHandler handler = AntiMonsterCrystal.getCrystalDataStoreConfigHandler();
             handler.setConfigObject(dataStore);
@@ -82,6 +141,14 @@ public class AntiMonsterCrystalAPI {
         } catch (Exception e) {
             ErrorHandler.getInstance().handleFatal(e);
         }
+    }
+
+    private UUID spawnCrystal(Location location, World world) {
+        Entity entity = world.spawnEntity(location, EntityType.ENDER_CRYSTAL);
+        entity.setCustomNameVisible(AntiMonsterCrystal.getConfigDataStore().isShowCrystalName());
+        entity.setCustomName(ChatColor.translateAlternateColorCodes('&', AntiMonsterCrystal.getConfigDataStore().getCrystalName()));
+        ((EnderCrystal) entity).setShowingBottom(false);
+        return entity.getUniqueId();
     }
 
     public int getPlacedAmount(Player player) {
@@ -115,11 +182,8 @@ public class AntiMonsterCrystalAPI {
             ErrorHandler.getInstance().handleFatal(exception);
             throw exception;
         }
-        meta.setDisplayName("§1§d§cAntiMonsterCrystal");
-        List<String> lore = new ArrayList<>();
-        lore.add("Place to auto defend your base!");
-        lore.add("Does no block damage if it explodes!");
-        meta.setLore(lore);
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', AntiMonsterCrystal.getConfigDataStore().getCrystalName()));
+        meta.setLore(AntiMonsterCrystal.getConfigDataStore().getLore());
         itemStack.setItemMeta(meta);
         return itemStack;
     }

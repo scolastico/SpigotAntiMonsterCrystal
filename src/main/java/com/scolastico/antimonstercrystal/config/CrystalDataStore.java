@@ -1,5 +1,7 @@
 package com.scolastico.antimonstercrystal.config;
 
+import com.scolastico.antimonstercrystal.internal.Location;
+
 import java.util.ArrayList;
 
 public class CrystalDataStore {
@@ -21,10 +23,20 @@ public class CrystalDataStore {
     public static class CrystalData {
         private String placedByUUID;
         private String crystalUUID;
+        private Location location;
 
-        public CrystalData(String placedByUUID, String crystalUUID) {
+        public CrystalData(String placedByUUID, String crystalUUID, Location location) {
             this.placedByUUID = placedByUUID;
             this.crystalUUID = crystalUUID;
+            this.location = location;
+        }
+
+        public Location getLocation() {
+            return location;
+        }
+
+        public void setLocation(Location location) {
+            this.location = location;
         }
 
         public String getPlacedByUUID() {

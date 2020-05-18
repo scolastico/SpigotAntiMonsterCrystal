@@ -12,6 +12,7 @@ public class ConfigHandler {
     private final String _filename;
     private final File _file;
     private final Gson _gson;
+    private boolean fresh = false;
 
     public ConfigHandler(Object configObject, String filename) throws Exception {
 
@@ -22,6 +23,7 @@ public class ConfigHandler {
         if (_file.exists()) {
             _configObject = _gson.fromJson(new FileReader(_file), configObject.getClass());
         } else {
+            fresh = true;
             writeStringToFile(_gson.toJson(configObject));
             _configObject = configObject;
         }
@@ -52,6 +54,10 @@ public class ConfigHandler {
 
     public String getFilename() {
         return _filename;
+    }
+
+    public boolean isFresh() {
+        return fresh;
     }
 
 }

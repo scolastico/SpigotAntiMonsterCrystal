@@ -42,8 +42,17 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("reload")) {
                     if (commandSender.hasPermission("antimonstercrystal.admin.reload")) {
-                        AntiMonsterCrystal.reloadConfigData();
-                        Language.getInstance().sendConfigMessage("done", commandSender);
+                        if (!AntiMonsterCrystal.isReloading()) {
+                            Language.getInstance().sendConfigMessage("reloading", commandSender);
+                            AntiMonsterCrystal.reloadConfigData(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Language.getInstance().sendConfigMessage("done", commandSender);
+                                }
+                            });
+                        } else {
+                            Language.getInstance().sendConfigMessage("already_reloading", commandSender);
+                        }
                     } else Language.getInstance().sendConfigMessage("permission", commandSender);
                     return true;
                 } else if (args[0].equalsIgnoreCase("give")) {
@@ -250,4 +259,5 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
     private long getUnixTimeStamp() {
         return System.currentTimeMillis() / 1000L;
     }
+
 }
