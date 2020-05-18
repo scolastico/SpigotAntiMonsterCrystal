@@ -35,11 +35,6 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
-        <repository>
-            <id>github</id>
-            <name>GitHub scolastico Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/scolastico/SpigotAntiMonsterCrystal</url>
-        </repository>
     </repositories>
 
     <dependencies>
