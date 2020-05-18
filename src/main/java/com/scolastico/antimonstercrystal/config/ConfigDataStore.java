@@ -76,6 +76,7 @@ public class ConfigDataStore {
             put("reloading", "&aReloading...");
             put("not_found", "&cPlayer not found.");
             put("help_delete_player", "&2/AntiMonsterCrystal delete-all <player> - Deletes all AntiMonsterCrystals from a player.");
+            put("help_convert", "&2/AntiMonsterCrystal convert - Convert old not working crystals into new ones.");
         }
     };
 

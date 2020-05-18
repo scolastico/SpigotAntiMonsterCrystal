@@ -42,7 +42,7 @@ public class OnPlace implements Listener {
                                     if ((event.getPlayer().getGameMode() == GameMode.SURVIVAL || event.getPlayer().getGameMode() == GameMode.CREATIVE) || (!AntiMonsterCrystal.getConfigDataStore().isGamemodeControl())) {
                                         if (event.getPlayer().hasPermission("antimonstercrystal.place")) {
                                             ConfigDataStore config = AntiMonsterCrystal.getConfigDataStore();
-                                            if ((api.getPlacedAmount(event.getPlayer())<config.getMaxPerAccount() || config.getMaxPerAccount() < 0) || event.getPlayer().hasPermission("")) {
+                                            if ((api.getPlacedAmount(event.getPlayer())<config.getMaxPerAccount() || config.getMaxPerAccount() < 0) || event.getPlayer().hasPermission("antimonstercrystal.bypass")) {
                                                 if (event.getClickedBlock() != null) {
                                                     if (config.getWorldWhitelist().contains(event.getClickedBlock().getWorld().getName()) || !config.isEnableWorldWhiteList()) {
                                                         if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {

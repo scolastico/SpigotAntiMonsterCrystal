@@ -51,6 +51,7 @@ public class Updater {
         language.put("reloading", "&aReloading...");
         language.put("not_found", "&cPlayer not found.");
         language.put("help_delete_player", "&2/AntiMonsterCrystal delete-all <player> - Deletes all AntiMonsterCrystals from a player.");
+        language.put("help_convert", "&2/AntiMonsterCrystal convert - Convert old not working crystals into new ones.");
         config.setLanguage(language);
 
         CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();

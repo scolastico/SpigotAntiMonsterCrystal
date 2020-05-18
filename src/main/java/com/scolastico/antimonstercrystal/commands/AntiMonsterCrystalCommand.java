@@ -2,11 +2,13 @@ package com.scolastico.antimonstercrystal.commands;
 
 import com.scolastico.antimonstercrystal.AntiMonsterCrystal;
 import com.scolastico.antimonstercrystal.api.AntiMonsterCrystalAPI;
+import com.scolastico.antimonstercrystal.config.ConfigDataStore;
 import com.scolastico.antimonstercrystal.config.CrystalDataStore;
 import com.scolastico.antimonstercrystal.internal.ErrorHandler;
 import com.scolastico.antimonstercrystal.internal.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -157,6 +160,30 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                         }
                     } else Language.getInstance().sendConfigMessage("permission", commandSender);
                     return true;
+                } else if (args[0].equalsIgnoreCase("convert")) {
+                    if (commandSender.hasPermission("antimonstercrystal.convert")) {
+                        if (commandSender instanceof Player) {
+                            Player player = (Player) commandSender;
+                            for (Entity entity:player.getNearbyEntities(5, 5, 5)) {
+                                if (entity.getType() == EntityType.ENDER_CRYSTAL) {
+                                    if (entity.getCustomName() != null) {
+                                        if (entity.getCustomName().equals("§4AntiMonsterCrystal")) {
+                                            if (!api.isCrystal(entity.getUniqueId())) {
+                                                ConfigDataStore config = AntiMonsterCrystal.getConfigDataStore();
+                                                if ((api.getPlacedAmount(player)<config.getMaxPerAccount() || config.getMaxPerAccount() < 0) || player.hasPermission("antimonstercrystal.bypass")) {
+                                                    Location location = entity.getLocation();
+                                                    entity.remove();
+                                                    api.spawnCrystal(player.getUniqueId().toString(), location, player.getWorld());
+                                                } else Language.getInstance().sendConfigMessage("max", player);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Language.getInstance().sendConfigMessage("done", commandSender);
+                        } else Language.getInstance().sendConfigMessage("not_a_player", commandSender);
+                    } else Language.getInstance().sendConfigMessage("permission", commandSender);
+                    return true;
                 }
             } else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("give")) {
@@ -220,6 +247,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                 }
             }
             Language.getInstance().sendConfigMessage("help_help", commandSender);
+            if (commandSender.hasPermission("antimonstercrystal.convert")) Language.getInstance().sendConfigMessage("help_convert", commandSender);
             if (commandSender.hasPermission("antimonstercrystal.give")) Language.getInstance().sendConfigMessage("help_give", commandSender);
             if (commandSender.hasPermission("antimonstercrystal.delete.range")) Language.getInstance().sendConfigMessage("help_delete", commandSender);
             if (commandSender.hasPermission("antimonstercrystal.delete.all")) Language.getInstance().sendConfigMessage("help_delete_all", commandSender);
@@ -237,6 +265,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
         List<String> tabComplete = new ArrayList<>();
         if (args.length == 1) {
             tabComplete.add("help");
+            if (commandSender.hasPermission("antimonstercrystal.convert")) tabComplete.add("convert");
             if (commandSender.hasPermission("antimonstercrystal.give")) tabComplete.add("give");
             if (commandSender.hasPermission("antimonstercrystal.delete.range")) tabComplete.add("delete");
             if (commandSender.hasPermission("antimonstercrystal.delete.all")) tabComplete.add("delete-all");

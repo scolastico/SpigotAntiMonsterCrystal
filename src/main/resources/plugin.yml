@@ -30,3 +30,5 @@ permissions:
     description: Allows to delete all crystals from a user.
   antimonstercrystal.admin.reset:
     description: Allows to delete all crystals.
+  antimonstercrystal.convert:
+    description: Allows to convert old crystals to new ones.
