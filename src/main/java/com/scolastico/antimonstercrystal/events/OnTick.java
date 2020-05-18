@@ -10,6 +10,8 @@ import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import ru.beykerykt.lightapi.LightAPI;
+import ru.beykerykt.lightapi.LightType;
 
 import java.util.ArrayList;
 import java.util.UUID;

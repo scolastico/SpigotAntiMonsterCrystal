@@ -5,13 +5,13 @@ import com.scolastico.antimonstercrystal.config.ConfigHandler;
 import com.scolastico.antimonstercrystal.config.CrystalDataStore;
 import com.scolastico.antimonstercrystal.internal.ErrorHandler;
 import com.scolastico.antimonstercrystal.internal.Language;
+import com.scolastico.antimonstercrystal.internal.LightHandler;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class AntiMonsterCrystalAPI {
@@ -55,8 +55,13 @@ public class AntiMonsterCrystalAPI {
         CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();
         for (CrystalDataStore.CrystalData data:dataStore.getCrystalData()) {
             if (data.getPlacedByUUID().equals(uuid)) {
-                Entity entity = Bukkit.getEntity(UUID.fromString(data.getCrystalUUID()));
-                if(entity != null) entity.remove();
+                Chunk chunk = data.getLocation().getLocation().getChunk();
+                chunk.load();
+                if (chunk.isLoaded()) {
+                    Entity entity = Bukkit.getEntity(UUID.fromString(data.getCrystalUUID()));
+                    if(entity != null) entity.remove();
+                }
+                chunk.unload();
             }
         }
     }
@@ -144,6 +149,8 @@ public class AntiMonsterCrystalAPI {
     }
 
     private UUID spawnCrystal(Location location, World world) {
+        location.setWorld(world);
+        LightHandler.getInstance().create(location);
         Entity entity = world.spawnEntity(location, EntityType.ENDER_CRYSTAL);
         entity.setCustomNameVisible(AntiMonsterCrystal.getConfigDataStore().isShowCrystalName());
         entity.setCustomName(ChatColor.translateAlternateColorCodes('&', AntiMonsterCrystal.getConfigDataStore().getCrystalName()));

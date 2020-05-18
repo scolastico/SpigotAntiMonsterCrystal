@@ -7,6 +7,7 @@ import com.scolastico.antimonstercrystal.internal.ErrorHandler;
 import com.scolastico.antimonstercrystal.internal.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -97,7 +98,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                             } else {
                                 confirm.put(getUnixTimeStamp()+15, "delete-" + player.getUniqueId().toString());
                                 HashMap<String, String> placeholder = new HashMap<>();
-                                placeholder.put("%command%", command.toString() + argsAsString);
+                                placeholder.put("%command%", "/antimonstercrystal" + argsAsString);
                                 Language.getInstance().sendConfigMessage("confirm", commandSender, true, placeholder);
                             }
                         } else {
@@ -126,7 +127,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                             } else {
                                 confirm.put(getUnixTimeStamp()+15, "delete-all-" + player.getUniqueId().toString());
                                 HashMap<String, String> placeholder = new HashMap<>();
-                                placeholder.put("%command%", command.toString() + argsAsString);
+                                placeholder.put("%command%", "/antimonstercrystal" + argsAsString);
                                 Language.getInstance().sendConfigMessage("confirm", commandSender, true, placeholder);
                             }
                         } else {
@@ -151,7 +152,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                         } else {
                             confirm.put(getUnixTimeStamp()+15, "reset-" + sender);
                             HashMap<String, String> placeholder = new HashMap<>();
-                            placeholder.put("%command%", command.toString() + argsAsString);
+                            placeholder.put("%command%", "/antimonstercrystal" + argsAsString);
                             Language.getInstance().sendConfigMessage("confirm", commandSender, true, placeholder);
                         }
                     } else Language.getInstance().sendConfigMessage("permission", commandSender);
@@ -168,6 +169,30 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
                             }
                         }
                         Language.getInstance().sendConfigMessage("not_online", commandSender);
+                    } else Language.getInstance().sendConfigMessage("permission", commandSender);
+                    return true;
+                } else if (args[0].equalsIgnoreCase("delete-all")) {
+                    if (commandSender.hasPermission("antimonstercrystal.admin.delete")) {
+                        for (OfflinePlayer player:Bukkit.getServer().getOfflinePlayers()) {
+                            if (player.getName() != null) {
+                                if (player.getName().equalsIgnoreCase(args[1])) {
+                                    String sender = "console";
+                                    if (commandSender instanceof Player) sender = ((Player) commandSender).getUniqueId().toString();
+                                    if (confirm.containsValue("delete-from-" + sender + "-" + player.getName())) {
+                                        deleteFromConfirm("delete-from-" + sender + "-" + player.getName());
+                                        api.deleteAllCrystalsFromUUID(player.getUniqueId().toString());
+                                        Language.getInstance().sendConfigMessage("done", commandSender);
+                                    } else {
+                                        confirm.put(getUnixTimeStamp()+15, "delete-from-" + sender + "-" + player.getName());
+                                        HashMap<String, String> placeholder = new HashMap<>();
+                                        placeholder.put("%command%", "/antimonstercrystal" + argsAsString);
+                                        Language.getInstance().sendConfigMessage("confirm", commandSender, true, placeholder);
+                                    }
+                                    return true;
+                                }
+                            }
+                        }
+                        Language.getInstance().sendConfigMessage("not_found", commandSender);
                     } else Language.getInstance().sendConfigMessage("permission", commandSender);
                     return true;
                 }
@@ -199,6 +224,7 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
             if (commandSender.hasPermission("antimonstercrystal.delete.range")) Language.getInstance().sendConfigMessage("help_delete", commandSender);
             if (commandSender.hasPermission("antimonstercrystal.delete.all")) Language.getInstance().sendConfigMessage("help_delete_all", commandSender);
             if (commandSender.hasPermission("antimonstercrystal.admin.reset")) Language.getInstance().sendConfigMessage("help_reset", commandSender);
+            if (commandSender.hasPermission("antimonstercrystal.admin.delete")) Language.getInstance().sendConfigMessage("help_delete_player", commandSender);
             if (commandSender.hasPermission("antimonstercrystal.admin.reload")) Language.getInstance().sendConfigMessage("help_reload", commandSender);
         } catch (Exception e) {
             ErrorHandler.getInstance().handle(e);
@@ -220,6 +246,10 @@ public class AntiMonsterCrystalCommand implements CommandExecutor, TabCompleter 
             if (args[0].equalsIgnoreCase("give")) {
                 for (Player player:Bukkit.getOnlinePlayers()) {
                     tabComplete.add(player.getName());
+                }
+            } else if (args[0].equalsIgnoreCase("delete-all")) {
+                for (OfflinePlayer player:Bukkit.getOfflinePlayers()) {
+                    if (player.getName() != null) tabComplete.add(player.getName());
                 }
             }
         }

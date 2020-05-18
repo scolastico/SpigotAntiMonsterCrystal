@@ -20,7 +20,9 @@ public class ConfigDataStore {
     private boolean giveItemBackOnRemoveWithCommand = false;
     private boolean showCrystalName = true;
     private boolean dropItemsOnKill = false;
+    private boolean lightSource = false;
     private Animations animations = new Animations();
+    private int lightCheckAll = 100;
 
     private ArrayList<String> lore = new ArrayList<String>() {
         {
@@ -72,8 +74,26 @@ public class ConfigDataStore {
             put("not_online", "&cPlayer seems to be not online.");
             put("already_reloading", "&cAlready reloading please wait a few seconds!");
             put("reloading", "&aReloading...");
+            put("not_found", "&cPlayer not found.");
+            put("help_delete_player", "&2/AntiMonsterCrystal delete-all <player> - Deletes all AntiMonsterCrystals from a player.");
         }
     };
+
+    public int getLightCheckAll() {
+        return lightCheckAll;
+    }
+
+    public void setLightCheckAll(int lightCheckAll) {
+        this.lightCheckAll = lightCheckAll;
+    }
+
+    public boolean isLightSource() {
+        return lightSource;
+    }
+
+    public void setLightSource(boolean lightSource) {
+        this.lightSource = lightSource;
+    }
 
     public boolean isDropItemsOnKill() {
         return dropItemsOnKill;

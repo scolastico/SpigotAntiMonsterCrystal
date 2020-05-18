@@ -49,6 +49,8 @@ public class Updater {
         HashMap<String, String> language = config.getLanguage();
         language.put("already_reloading", "&cAlready reloading please wait a few seconds!");
         language.put("reloading", "&aReloading...");
+        language.put("not_found", "&cPlayer not found.");
+        language.put("help_delete_player", "&2/AntiMonsterCrystal delete-all <player> - Deletes all AntiMonsterCrystals from a player.");
         config.setLanguage(language);
 
         CrystalDataStore dataStore = AntiMonsterCrystal.getCrystalDataStore();

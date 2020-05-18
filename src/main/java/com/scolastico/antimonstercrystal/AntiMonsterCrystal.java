@@ -8,11 +8,11 @@ import com.scolastico.antimonstercrystal.config.CrystalDataStore;
 import com.scolastico.antimonstercrystal.events.*;
 import com.scolastico.antimonstercrystal.internal.ErrorHandler;
 import com.scolastico.antimonstercrystal.internal.Language;
+import com.scolastico.antimonstercrystal.internal.LightHandler;
 import com.scolastico.antimonstercrystal.internal.Updater;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.inventory.ShapedRecipe;
@@ -46,6 +46,8 @@ public class AntiMonsterCrystal extends JavaPlugin {
     private static final AntiMonsterCrystalAPI api = new AntiMonsterCrystalAPI();
     private static OnTick onTick;
     private static boolean reloading = false;
+    private static boolean lightSource = false;
+    private static int lightCheckTick = 0;
 
     public static void reloadConfigData() {
         reloadConfigData(null);
@@ -56,6 +58,7 @@ public class AntiMonsterCrystal extends JavaPlugin {
             if (!reloading) {
                 reloading = true;
                 scheduler.cancel();
+                LightHandler.getInstance().disable();
                 Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
                     @Override
                     public void run() {
@@ -67,6 +70,10 @@ public class AntiMonsterCrystal extends JavaPlugin {
                             crystalDataStore = (CrystalDataStore) crystalDataStoreConfigHandler.getConfigObject();
                             AntiMonsterCrystal.reloadRecipe();
                             api.spawnCrystalsFromConfig();
+                            checkLightAPI();
+                            if (config.isLightSource()) {
+                                LightHandler.getInstance().enable();
+                            }
                             scheduler = getScheduler();
                             reloading = false;
                             if (runnable != null) runnable.run();
@@ -163,6 +170,12 @@ public class AntiMonsterCrystal extends JavaPlugin {
             language.setStrings(languageData);
             language.sendColorMessage(Language.DARK_GREEN + "Config " + Language.GREEN + Language.BOLD + "[OK]", console);
 
+            // Light Source
+            checkLightAPI();
+            if (config.isLightSource()) {
+                LightHandler.getInstance().enable();
+            }
+
             // Run Updater
             Updater updater = new Updater();
             updater.update(configConfigHandler.isFresh());
@@ -201,6 +214,7 @@ public class AntiMonsterCrystal extends JavaPlugin {
     @Override
     public void onDisable() {
         if (scheduler != null) scheduler.cancel();
+        LightHandler.getInstance().disable();
         api.deleteAllCrystals();
         Language.getInstance().sendColorMessage(Language.CYAN + "AntiMonsterCrystal disabled!", console);
     }
@@ -214,12 +228,41 @@ public class AntiMonsterCrystal extends JavaPlugin {
                         currentTick = 0L;
                         onTick.onTick();
                     }
+                    if (lightCheckTick >= config.getLightCheckAll()) {
+                        lightCheckTick = 0;
+                        if (lightSource) {
+                            if (config.isLightSource()) {
+                                LightHandler.getInstance().check();
+                            }
+                        }
+                    }
                     currentTick++;
+                    lightCheckTick++;
                 } catch (Exception e) {
                     ErrorHandler.getInstance().handleFatal(e);
                 }
             }
         }, 1, 1);
+    }
+
+    public static void checkLightAPI() {
+        if (config.isLightSource()) {
+            Plugin lightAPI = Bukkit.getPluginManager().getPlugin("LightAPI");
+            if (lightAPI != null) {
+                if (lightAPI.isEnabled()) {
+                    lightSource = true;
+                }
+            }
+            if (!lightSource) {
+                Language.getInstance().sendColorMessage(Language.RED + "[WARN] Light source is enabled but the plugin LightAPI is missing.", console);
+                Language.getInstance().sendColorMessage(Language.RED + "[WARN] Please install the plugin and restart the server. Download:", console);
+                Language.getInstance().sendColorMessage(Language.RED + "[WARN] https://www.spigotmc.org/resources/lightapi-fork.48247/", console);
+            }
+        }
+    }
+
+    public static boolean isLightSource() {
+        return lightSource;
     }
 
     public static boolean isReloading() {
