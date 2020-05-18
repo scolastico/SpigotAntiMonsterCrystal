@@ -6,7 +6,7 @@
 
     <groupId>com.scolastico</groupId>
     <artifactId>AntiMonsterCrystal</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,6 +17,14 @@
     <build>
         <finalName>${project.artifactId}</finalName>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub scolastico Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/scolastico/SpigotAntiMonsterCrystal</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
         <repository>
