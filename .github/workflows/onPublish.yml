@@ -19,7 +19,7 @@ jobs:
           settings-path: ${{ github.workspace }}
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml -s settings.xml -Dserver.username=${{ secrets.username }} -Dserver.password=${{ secrets.password }}
+        run: mvn -B package --file pom.xml -s .m2/settings.xml -Dserver.username=${{ secrets.username }} -Dserver.password=${{ secrets.password }}
 
       - name: Get Release
         id: get-release
